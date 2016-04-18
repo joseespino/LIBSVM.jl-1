@@ -46,25 +46,25 @@ immutable SVMParameter
     probability::Int32
 end
 
-# immutable SVMModel
-#   param::SVMParameter
-#   nr_class::Int32
-#   l::Int32
-#   SV::Ptr{Ptr{SVMNode}}
-#   sv_coef::Ptr{Ptr{Float64}}
-#   rho::Ptr{Float64}
-#   probA::Ptr{Float64}
-#   probB::Ptr{Float64}
-#   sv_indices::Ptr{Int32}
+immutable TypeSVMModel
+   param::SVMParameter
+   nr_class::Int32
+   l::Int32
+   SV::Ptr{Ptr{SVMNode}}
+   sv_coef::Ptr{Ptr{Float64}}
+   rho::Ptr{Float64}
+   probA::Ptr{Float64}
+   probB::Ptr{Float64}
+   sv_indices::Ptr{Int32}
 
-#   label::Ptr{Int32}
-#   nSV::Ptr{Int32}
+   label::Ptr{Int32}
+   nSV::Ptr{Int32}
 
-#   free_sv::Int32
-# end
+   free_sv::Int32
+end
 
 type SVMModel{T}
-    ptr::Ptr{Void}
+    ptr::Ptr{TypeSVMModel}
     param::Vector{SVMParameter}
 
     # Prevent these from being garbage collected
@@ -223,7 +223,7 @@ function svmtrain{T, U<:Real}(labels::AbstractVector{T},
         pointer(nodeptrs))]
 
     verbosity = verbose
-    ptr = ccall(svm_train(), Ptr{Void}, (Ptr{SVMProblem},
+    ptr = ccall(svm_train(), Ptr{TypeSVMModel}, (Ptr{SVMProblem},
         Ptr{SVMParameter}), problem, param)
 
     model = SVMModel(ptr, param, problem, nodes, nodeptrs, reverse_labels,
